@@ -315,6 +315,14 @@ async function addCoverAndMetadataToFile(audioFilePath, coverFilePath, metadataF
         Logger.debug('[ffmpegHelpers] ffmpeg stdout:', stdout)
         Logger.debug('[ffmpegHelpers] ffmpeg stderr:', stderr)
         Logger.debug('[ffmpegHelpers] Moving temp file to audio file path:', `"${tempFilePath}"`, '->', `"${audioFilePath}"`)
+          try {
+            // Get the stats of the source file
+            const sourceStats = await fs.stat(audioFilePath);
+            // Copy the permissions to the target file
+            await fs.chmod(tempFilePath, sourceStats.mode);
+          } catch (error) {
+            Logger.error('Error copying file permissions:', error);
+          }
         try {
           await fs.move(tempFilePath, audioFilePath, { overwrite: true })
           resolve()
